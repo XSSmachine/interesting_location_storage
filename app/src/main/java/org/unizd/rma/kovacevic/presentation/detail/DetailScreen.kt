@@ -2,6 +2,7 @@ package org.unizd.rma.kovacevic.presentation.detail
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -12,8 +13,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.unizd.rma.kovacevic.data.local.model.LocationCategory
 
@@ -53,7 +59,7 @@ fun DetailScreen(
 }
 
 @Composable
- fun DetailScreen(
+private fun DetailScreen(
     modifier: Modifier,
     isUpdatingLocation:Boolean,
     title:String,
@@ -67,6 +73,7 @@ fun DetailScreen(
     onBtnClick:()-> Unit,
     onNavigate:() -> Unit,
 ) {
+    val stateHolder = rememberDropdownMenuStateHolder()
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
@@ -99,7 +106,7 @@ fun DetailScreen(
 
         }
         Spacer(modifier = Modifier.size(12.dp))
-        DropdownMenuSpinner()
+        DropdownMenu(stateHolder = stateHolder)
         Spacer(modifier = Modifier.size(12.dp))
         LocationTextField(
             modifier = Modifier.weight(1f),
@@ -143,25 +150,44 @@ fun TopSection(
 }
 
 @Composable
-fun DropdownMenuSpinner() {
-    val options = listOf(LocationCategory.values())
-    val (expanded, setExpanded) = remember { mutableStateOf(false) }
-    val (selectedOption, setSelectedOption) = remember { mutableStateOf(options[0]) }
-    Box(modifier = Modifier.fillMaxWidth()) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Text(text = "Selected option: $selectedOption")
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { setExpanded(false) }
-            ) {
-                options.forEach { option ->
-                    DropdownMenuItem(onClick = {
-                        setSelectedOption(option)
-                        setExpanded(false)
-                    }) {
-                        Text(text = option.toString())
-                    }
+fun DropdownMenu(stateHolder: DropdownMenuStateHolder) {
+    Column {
+        Box {
+            OutlinedTextField(
+                value = stateHolder.value,
+                onValueChange = {},
+                label = { Text(text = "Category") },
+                trailingIcon = {
+                    Icon(
+                        imageVector = stateHolder.icon,
+                        contentDescription = null,
+                        Modifier.clickable {
+                            stateHolder.onEnabled(!(stateHolder.enabled))
+                        })
+                },
+                modifier = Modifier.onGloballyPositioned {
+                    stateHolder.onSize(it.size.toSize())
                 }
+            )
+            androidx.compose.material.DropdownMenu(
+                expanded = stateHolder.enabled,
+                onDismissRequest = {
+                    stateHolder.onEnabled(false)
+
+                },
+                modifier = Modifier
+                    .width(with(LocalDensity.current)
+                    {stateHolder.size.width.toDp()})
+            ) {
+                    stateHolder.items.forEachIndexed { index, s ->
+                        DropdownMenuItem(onClick = {
+                            stateHolder.onSelectedIndex(index)
+                            stateHolder.onEnabled(false)
+                        }) {
+                            Text(text = s)
+                        }
+                        
+                    }
             }
         }
     }
