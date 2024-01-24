@@ -12,7 +12,6 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.unizd.rma.kovacevic.data.local.model.Location
-import org.unizd.rma.kovacevic.data.local.model.LocationCategory
 import org.unizd.rma.kovacevic.domain.use_cases.AddUseCase
 import org.unizd.rma.kovacevic.domain.use_cases.GetLocationByIdUseCase
 import java.util.*
@@ -25,20 +24,19 @@ class DetailViewModel @AssistedInject constructor(
     var state by mutableStateOf(DetailState())
         private set
     val isFormNotBlank:Boolean
-        get() = state.title.isNullOrEmpty()  &&
-                state.content.isNotEmpty() &&
-                state.imagePath.isNotEmpty()
+        get() = state.title.isNotEmpty()  &&
+                state.content.isNotEmpty()
     private val location:Location
         get() = state.run {
             Location(
-                id=id,
-                title=title,
-                content=content,
-                category=category,
-                createdDate=createdDate,
-                imagePath=imagePath,
-                latitude=latitude,
-                longitude=longitude
+                id,
+                title,
+                content,
+                category,
+                createdDate,
+                imagePath,
+                latitude,
+                longitude
             )
         }
 
@@ -76,8 +74,11 @@ class DetailViewModel @AssistedInject constructor(
     fun onContentChange(content:String){
         state = state.copy(content=content)
     }
-    fun onCategoryChange(category: LocationCategory){
+    fun onCategoryChange(category: String){
         state = state.copy(category=category)
+    }
+    fun onImageTaken(imagePath: String){
+        state = state.copy(imagePath=imagePath)
     }
 
     fun addOrUpdateLocation() = viewModelScope.launch {
@@ -89,11 +90,11 @@ data class DetailState(
     val id:Long = 0,
     val title:String = "",
     val content:String="",
-    val category: LocationCategory = LocationCategory.PRIRODNE_LJEPOTE,
+    val category: String = "",
     val createdDate: Date = Date(),
-    val imagePath:String = "",
+    val imagePath: String = "",
     val latitude:Double = 0.0,
-    val longitude : Double = 0.0,
+    val longitude: Double = 0.0,
     val isUpdatingLocation: Boolean = false
     )
 

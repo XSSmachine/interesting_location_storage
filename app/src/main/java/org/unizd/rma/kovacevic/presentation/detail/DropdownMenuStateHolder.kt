@@ -6,7 +6,6 @@ import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.vector.ImageVector
-import org.unizd.rma.kovacevic.data.local.model.LocationCategory
 
 class DropdownMenuStateHolder {
 
@@ -20,7 +19,11 @@ class DropdownMenuStateHolder {
     }else{
         Icons.Default.ArrowDropDown
     }
-    val items = LocationCategory.values().map { it.name }
+    val items = listOf(
+        "PRIRODNE LJEPOTE",
+        "POVIJESNA MJESTA",
+        "GRADSKI PROSTORI"
+    )
 
     fun onEnabled(newValue:Boolean){
         enabled = newValue

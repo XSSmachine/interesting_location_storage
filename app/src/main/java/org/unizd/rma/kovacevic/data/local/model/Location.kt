@@ -10,9 +10,9 @@ data class Location(
     val id:Long = 0,
     val title:String,
     val content:String,
-    val category:LocationCategory,
+    val category: String,
     val createdDate:Date,
-    val imagePath:String,
+    val imagePath: String,
     val latitude:Double,
     val longitude:Double
 )

@@ -17,7 +17,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.unizd.rma.kovacevic.common.ScreenViewState
 import org.unizd.rma.kovacevic.data.local.model.Location
-import org.unizd.rma.kovacevic.data.local.model.LocationCategory
 import java.util.*
 
 @Composable
@@ -59,9 +58,9 @@ private fun HomeDetail(
 ){
 
     LazyVerticalStaggeredGrid(
-        columns = StaggeredGridCells.Fixed(2),
+        columns = StaggeredGridCells.Fixed(1),
         contentPadding = PaddingValues(4.dp),
-        modifier = modifier
+        modifier = modifier.padding(bottom = 50.dp)
     ){
         itemsIndexed(locations){ index, item ->
             LocationCard(
@@ -124,6 +123,13 @@ fun LocationCard(
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.body1
             )
+            Spacer(modifier = Modifier.size(4.dp))
+            Text(
+                text = location.category,
+                maxLines = 4,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.body1
+            )
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start,
@@ -159,30 +165,30 @@ val placeHolderText =
 
 val locations = listOf(
     Location(
-        title="Room Database",
+        title ="Room Database",
         content = placeHolderText + placeHolderText,
         createdDate = Date(),
-        category = LocationCategory.GRADSKI_PROSTORI,
+        category = "GRADSKI PROSTORI",
         imagePath = "res/drawable/example_pic.jpg",
         latitude = 0.0,
         longitude = 0.0
 
     ),
     Location(
-        title="Jetpack Compose",
+        title ="Jetpack Compose",
         content = "Test example",
         createdDate = Date(),
-        category = LocationCategory.POVIJESNA_MJESTA,
+        category = "POVIJESNA_MJESTA",
         imagePath = "res/drawable/example_pic.jpg",
         latitude = 0.0,
         longitude = 0.0
 
     ),
     Location(
-        title="Room Database",
+        title ="Room Database",
         content = placeHolderText + placeHolderText,
         createdDate = Date(),
-        category = LocationCategory.GRADSKI_PROSTORI,
+        category = "GRADSKI PROSTORI",
         imagePath = "res/drawable/example_pic.jpg",
         latitude = 0.0,
         longitude = 0.0

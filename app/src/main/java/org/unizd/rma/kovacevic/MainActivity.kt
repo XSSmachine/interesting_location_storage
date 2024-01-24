@@ -7,12 +7,16 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.InputChip
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -61,7 +65,8 @@ class MainActivity : ComponentActivity() {
                 BottomAppBar(
                     content = {
                         Row(
-                            horizontalArrangement =  Arrangement.Center
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement =  Arrangement.SpaceBetween
                         ) {
                             InputChip(
                                 selected = currentTab == TabScreen.Home,
@@ -72,11 +77,11 @@ class MainActivity : ComponentActivity() {
                                     )
                                 },
                                 label = {
-                                    Text("Home")
+                                    Text("Home",color= Color.Black)
 
                                 },
                                 trailingIcon = {
-                                    Icon(imageVector = Icons.Default.Home, contentDescription = null)
+                                    Icon(imageVector = Icons.Default.Home, contentDescription = null, tint = Color.Black)
                                 }
                             )
                             Spacer(modifier = Modifier.Companion.size(12.dp))
@@ -89,28 +94,30 @@ class MainActivity : ComponentActivity() {
                                     )
                                 },
                                 label = {
-                                    Text("Map")
+                                    Text("Map",color= Color.Black)
 
                                 },
                                 trailingIcon = {
-                                    Icon(imageVector = Icons.Default.Map, contentDescription = null)
+                                    Icon(imageVector = Icons.Default.Map, contentDescription = null, tint = Color.Black)
                                 }
                             )
+                            Spacer(modifier = Modifier.Companion.size(155.dp))
+                                FloatingActionButton(onClick = {
+                                    navController.navigateToSingleTop(
+                                        route = Screens.Detail.name
+                                    )
+                                }) {
+                                    Icon(imageVector = Icons.Default.Add,contentDescription = null)
+                                }
+
                         }
 
                     }
-
                 )
             },
-            floatingActionButton = {
-                FloatingActionButton(onClick = {
-                    navController.navigateToSingleTop(
-                        route = Screens.Detail.name
-                    )
-                }) {
-                    Icon(imageVector = Icons.Default.Add,contentDescription = null)
-                }
-            }
+
+
+
         ) {
             LocationNavigation(
                 modifier = Modifier.padding(it),

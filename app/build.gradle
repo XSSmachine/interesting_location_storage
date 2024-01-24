@@ -69,6 +69,9 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
+    implementation 'androidx.core:core-ktx:1.7.0'
+
+
 
     //// CAMERA STUFF ////
 //    implementation "androidx.camera:camera-camera2:$camerax_version"
