@@ -1,8 +1,14 @@
 package org.unizd.rma.kovacevic
 
+import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -19,10 +25,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.AndroidEntryPoint
-import org.unizd.rma.kovacevic.presentation.detail.DetailAssistedFactory
+import org.unizd.rma.kovacevic.presentation.detail.DetailViewModel
 import org.unizd.rma.kovacevic.presentation.home.HomeViewModel
 import org.unizd.rma.kovacevic.presentation.map.MapViewModel
 import org.unizd.rma.kovacevic.presentation.navigation.LocationNavigation
@@ -34,9 +43,71 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @Inject lateinit var assistedFactory: DetailAssistedFactory
+companion object{
+    var lastKnownLocation by mutableStateOf<android.location.Location?>(null)
+}
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    @SuppressLint("MissingPermission")
+    fun getDeviceLocation(
+        fusedLocationProviderClient: FusedLocationProviderClient
+    ) {
+        /*
+         * Get the best and most recent location of the device, which may be null in rare
+         * cases when a location is not available.
+         */
+        try {
+            val locationResult = fusedLocationProviderClient.lastLocation
+            locationResult.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val location = task.result
+                    if (location != null) {
+                        // Location data is available
+                        Log.d("MainActivity", "Last known location: $location")
+                        // Update lastKnownLocation
+                        lastKnownLocation = location
+                    } else {
+                        // Last known location is null
+                        Log.e("MainActivity", "Last known location is null")
+                    }
+                }
+            }
+        } catch (e: SecurityException) {
+            // Show error or something
+        }
+    }
+
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                getDeviceLocation(fusedLocationClient)
+            }
+        }
+
+    private fun askPermissions() = when {
+        ContextCompat.checkSelfPermission(
+            this,
+            ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED -> {
+            getDeviceLocation(fusedLocationClient)
+        }
+        else -> {
+            requestPermissionLauncher.launch(ACCESS_FINE_LOCATION)
+        }
+    }
+
+
+
+
+
+    @Inject lateinit var assistedFactory: DetailViewModel.Factory
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        askPermissions()
         setContent {
             InterestingLocationsStorageTheme {
                 // A surface container using the 'background' color from the theme

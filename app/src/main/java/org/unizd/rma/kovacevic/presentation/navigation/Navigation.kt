@@ -10,11 +10,14 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import org.unizd.rma.kovacevic.presentation.detail.DetailAssistedFactory
+
 import org.unizd.rma.kovacevic.presentation.detail.DetailScreen
+import org.unizd.rma.kovacevic.presentation.detail.DetailViewModel
 import org.unizd.rma.kovacevic.presentation.home.HomeScreen
 import org.unizd.rma.kovacevic.presentation.home.HomeViewModel
+import org.unizd.rma.kovacevic.presentation.map.MapScreen
 import org.unizd.rma.kovacevic.presentation.map.MapViewModel
+import org.unizd.rma.kovacevic.presentation.map.state.LocationState
 
 enum class Screens{
     Home,Detail,Map
@@ -26,7 +29,7 @@ fun LocationNavigation(
     navHostController: NavHostController,
     homeViewModel: HomeViewModel,
     mapViewModel: MapViewModel,
-    assistedFactory: DetailAssistedFactory
+    assistedFactory: DetailViewModel.Factory
 ) {
     NavHost(
         navController = navHostController,
@@ -43,17 +46,13 @@ fun LocationNavigation(
                     )
                 })
         }
-//        composable(route = Screens.Map.name){
-//            val state by mapViewModel.state.collectAsState()
-//            MapScreen(
-//                state = state,
-//                onDeleteLocation = homeViewModel::deleteLocation,
-//                onLocationClicked = {
-//                    navHostController.navigateToSingleTop(
-//                        route = "${Screens.Detail.name}?id=$it"
-//                    )
-//                })
-//        }
+        composable(route = Screens.Map.name){
+            val state by mapViewModel.state.collectAsState()
+            MapScreen(
+                state = state
+
+                )
+        }
         composable(
             route="${Screens.Detail.name}?id={id}",
             arguments = listOf(navArgument("id"){

@@ -12,10 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Update
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +24,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.window.Popup
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.unizd.rma.kovacevic.BitmapConverter
@@ -35,66 +33,86 @@ import org.unizd.rma.kovacevic.BitmapConverter
 fun DetailScreen(
     modifier: Modifier = Modifier,
     locationId: Long,
-    assistedFactory: DetailAssistedFactory,
+    assistedFactory: DetailViewModel.Factory,
     navigateUp: () -> Unit
 ) {
     val viewModel = viewModel(
         modelClass = DetailViewModel::class.java,
-        factory = DetailedViewModelFactory(
-            locationId = locationId,
-            assistedFactory = assistedFactory
+        factory = DetailViewModel.provideMainViewModelFactory(
+
+            assistedFactory,
+                    locationId,
         )
     )
 
     val state = viewModel.state
-    DetailScreen(
+    DetailScreenEntry(
+        state=state,
         modifier = modifier,
         isUpdatingLocation = state.isUpdatingLocation,
-        title = state.title,
-        content = state.content,
-        category = state.category,
-        imagePath = state.imagePath,
+
+//        title = state.title,
+//        content = state.content,
+//        category = state.category,
+//        imagePath = state.imagePath,
         isFormNotEmpty = viewModel.isFormNotBlank,
         onTitleChange = viewModel::onTitleChange,
         onContentChange = viewModel::onContentChange,
         onCategoryChange = viewModel::onCategoryChange,
         onImageTaken = viewModel::onImageTaken,
+        onLocationFetched = viewModel::onLocationFetch,
+        onDialogDismissed = viewModel::onScreenDialogDismissed,
         onBtnClick = {
             viewModel.addOrUpdateLocation()
             navigateUp()
         },
         onNavigate = navigateUp
         )
-
-
 }
 
 @Composable
-private fun DetailScreen(
+private fun DetailScreenEntry(
     modifier: Modifier,
+    state: DetailState,
     isUpdatingLocation:Boolean,
-    title:String,
-    content: String,
-    category: String,
-    imagePath:String,
+//    title:String,
+//    content: String,
+//    category: String,
+//    imagePath:String,
     isFormNotEmpty:Boolean,
     onTitleChange:(String) -> Unit,
     onContentChange:(String) -> Unit,
     onCategoryChange: (String) -> Unit,
-    onImageTaken: (String) -> Unit,
+    onImageTaken: (Bitmap) -> Unit,
+    onLocationFetched: () -> Unit,
+    onDialogDismissed:(Boolean) -> Unit,
     onBtnClick:()-> Unit,
     onNavigate:() -> Unit,
 ) {
-    val stateHolder = rememberDropdownMenuStateHolder()
+    val isNewEnabled by remember {
+        mutableStateOf(false)
+    }
+    var bitmap by remember {
+        mutableStateOf<Bitmap?>(null)
+    }
+
+    var convertedImage by remember{
+        mutableStateOf<String>("")
+    }
+    val items = listOf(
+                        "PRIRODNE LJEPOTE",
+                        "POVIJESNA MJESTA",
+                        "GRADSKI PROSTORI"
+                    )
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
 
         TopSection(
-            title = title, 
+            title = state.title,
             onNavigate =onNavigate,
             onTitleChange = onTitleChange,
-            ) 
+            )
         Spacer(modifier = Modifier.size(12.dp))
 
             Row(
@@ -104,26 +122,49 @@ private fun DetailScreen(
                 horizontalArrangement = Arrangement.End
 
             ) {
-//                TextField(
-//                    value = category,
-//                    onValueChange = onCategoryChange)
-
-//                DropdownTextField(
-//                    category = category,
-//                    onCategoryChange = onCategoryChange,
-//                    items = listOf(
-//                        "PRIRODNE LJEPOTE",
-//                        "POVIJESNA MJESTA",
-//                        "GRADSKI PROSTORI"
-//                    ))
-                DropdownMenu(
-                    stateHolder = stateHolder,
-                    category=category,
-                    onCategoryChange = onCategoryChange
+                TextField(
+                    value = state.category,
+                    onValueChange = {
+                        onCategoryChange.invoke(it)
+                    },
+                    label = {Text(text = "Category")},
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = null,
+                            modifier = Modifier.clickable {
+                                onDialogDismissed.invoke(!state.isScreenDialogDismissed)
+                            }
+                            )
+                    }
                 )
+                if(!state.isScreenDialogDismissed){
+                    Popup(
+                        onDismissRequest = {
+                            onDialogDismissed.invoke(!state.isScreenDialogDismissed)
+                        }
+                    ){
+                        Surface(modifier=Modifier.padding(16.dp)) {
+                            Column {
+                                items.forEach{
+                                    Text(text = it,
+                                        modifier = Modifier
+                                            .padding(8.dp)
+                                            .clickable {
+                                                onCategoryChange.invoke(it)
+                                                onDialogDismissed(!state.isScreenDialogDismissed)
+                                            }
+                                        )
+                                }
+                            }
+
+                        }
+                    }
+                }
+
 
                 AnimatedVisibility(isFormNotEmpty) {
                     IconButton(onClick = onBtnClick) {
+                        onLocationFetched()
                         val icon = if (isUpdatingLocation) Icons.Default.Update
                         else Icons.Default.Check
                         Icon(
@@ -136,13 +177,73 @@ private fun DetailScreen(
             }
 
 
-        Log.d("DetailScreen", "isFormNotEmpty: $isFormNotEmpty")
+        Log.d("DetailScreen", "isFormNotEmpty: ${state.imagePath}")
         Spacer(modifier = Modifier.size(12.dp))
-        ImageTaker(
-            onImageTaken = { imagePath ->
-                onImageTaken(imagePath)
+
+        val cameraLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.TakePicturePreview(),
+            onResult = { newImage ->
+                bitmap = newImage
             }
         )
+
+        val permissionLauncher = rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (isGranted) {
+                cameraLauncher.launch()
+            }
+        }
+
+        Column {
+            if(isUpdatingLocation){
+                var prevImage = state.imagePath
+                var newBitmap = BitmapConverter.converterStringToBitmap(prevImage)
+                if (newBitmap != null) {
+                    Image(
+                        bitmap = newBitmap.asImageBitmap(),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .size(360.dp)
+                    )
+                }
+            }else{
+            bitmap?.let {
+                convertedImage = BitmapConverter.converterBitmapToString(bitmap!!)
+                convertedImage = state.imagePath
+                onImageTaken.invoke(bitmap!!)
+                Image(
+                    bitmap = it.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .size(360.dp)
+                )
+            }
+            }
+
+            val context = LocalContext.current
+
+            if(!isUpdatingLocation){
+            Button(
+                onClick = {
+                    // Checks if the permission is granted
+                    val permissionCheckResult =
+                        ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA)
+
+                    if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                        // The permission is already granted
+                        cameraLauncher.launch()
+                    } else {
+                        // Launches the permission request
+                        permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                    }
+                }
+            ) {
+                Icon(imageVector = Icons.Default.Camera,contentDescription = null)
+            }}
+        }
 //        FloatingActionButton(onClick = {
 //
 //        }) {
@@ -151,7 +252,7 @@ private fun DetailScreen(
         Spacer(modifier = Modifier.size(12.dp))
         LocationTextField(
             modifier = Modifier.weight(1f),
-            value = content,
+            value = state.content,
             onValueChange = onContentChange,
             label = "Content"
         )
@@ -160,43 +261,6 @@ private fun DetailScreen(
 
     }
 }
-
-@Composable
-fun DropdownTextField(
-    category: String,
-    onCategoryChange: (String) -> Unit,
-    items: List<String>
-) {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedIndex by remember { mutableStateOf(-1) }
-    OutlinedTextField(
-        value = category,
-        onValueChange = {  },
-        label = { Text("Category") },
-        readOnly = true,
-        trailingIcon = {
-            Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null)
-        },
-        modifier = Modifier.clickable { expanded = true }
-    )
-
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = { expanded = false },
-        modifier = Modifier.width(IntrinsicSize.Min)
-    ) {
-        items.forEachIndexed { index,item ->
-            DropdownMenuItem(onClick = {
-                selectedIndex = index
-                onCategoryChange(items.get(selectedIndex))
-                expanded = false
-            }) {
-                Text(text = item)
-            }
-        }
-    }
-}
-
 
 
 @Composable
@@ -295,10 +359,9 @@ private fun LocationTextField(
         value = value,
         onValueChange = onValueChange,
         modifier=modifier,
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            disabledPlaceholderColor = Color.Transparent,
-            placeholderColor = Color.Transparent,
-            unfocusedBorderColor = Color.Transparent
+        colors = TextFieldDefaults.textFieldColors(
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent
             ),
         placeholder = {
             Text(
