@@ -5,11 +5,14 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.icu.text.DateIntervalFormat.FormattedDateInterval
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -29,6 +32,8 @@ import org.unizd.rma.kovacevic.MainActivity.Companion.lastKnownLocation
 import org.unizd.rma.kovacevic.data.local.model.Location
 import org.unizd.rma.kovacevic.domain.use_cases.AddUseCase
 import org.unizd.rma.kovacevic.domain.use_cases.GetLocationByIdUseCase
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -38,11 +43,14 @@ class DetailViewModel @AssistedInject constructor(
     @Assisted private val locationID:Long
 ): ViewModel() {
 
+
+
     var state by mutableStateOf(DetailState())
         private set
     val isFormNotBlank: Boolean
         get() = state.title.isNotEmpty() &&
-                state.content.isNotEmpty()
+                state.content.isNotEmpty() &&
+                state.imagePath.isNotEmpty()
     private val location: Location
         get() = state.run {
             Location(
@@ -119,12 +127,14 @@ class DetailViewModel @AssistedInject constructor(
 
     fun addOrUpdateLocation() = viewModelScope.launch {
         addusecase(location = location)
+        counter++
     }
 
 
 
 
     companion object {
+        var counter by mutableStateOf(0)
         fun provideMainViewModelFactory(
             factory: Factory,
             locationID: Long
@@ -149,13 +159,21 @@ data class DetailState(
     val title:String = "",
     val content:String="",
     val category: String = "",
-    val createdDate: Date = Date(),
+    val createdDate: String = formatDate(Date()),
     val imagePath: String = "",
     val latitude:Double = 0.0,
     val longitude: Double = 0.0,
     val isUpdatingLocation: Boolean = false,
     val isScreenDialogDismissed: Boolean = true
-    )
+    ){
+    companion object {
+        private val dateFormatter = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+
+        private fun formatDate(date: Date): String {
+            return dateFormatter.format(date)
+        }
+    }
+}
 
 //class DetailedViewModelFactory(
 //    private val locationId: Long,

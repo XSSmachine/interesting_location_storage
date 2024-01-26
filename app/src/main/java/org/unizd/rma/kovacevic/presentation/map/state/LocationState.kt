@@ -4,5 +4,5 @@ import android.location.Location
 
 
 data class LocationState(
-    val lastKnownLocation: Location?
+    var lastKnownLocation: Location
 )

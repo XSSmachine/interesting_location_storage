@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -31,9 +32,11 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.AndroidEntryPoint
+import org.unizd.rma.kovacevic.MainActivity.Companion.lastKnownLocation
 import org.unizd.rma.kovacevic.presentation.detail.DetailViewModel
 import org.unizd.rma.kovacevic.presentation.home.HomeViewModel
 import org.unizd.rma.kovacevic.presentation.map.MapViewModel
+import org.unizd.rma.kovacevic.presentation.map.state.LocationState
 import org.unizd.rma.kovacevic.presentation.navigation.LocationNavigation
 import org.unizd.rma.kovacevic.presentation.navigation.Screens
 import org.unizd.rma.kovacevic.presentation.navigation.navigateToSingleTop
@@ -156,9 +159,11 @@ companion object{
                                 }
                             )
                             Spacer(modifier = Modifier.Companion.size(12.dp))
+                            AnimatedVisibility(DetailViewModel.counter!=0) {
                             InputChip(
                                 selected = currentTab == TabScreen.Home,
                                 onClick = {
+
                                     currentTab = TabScreen.Map
                                     navController.navigateToSingleTop(
                                         route = Screens.Map.name
@@ -171,8 +176,8 @@ companion object{
                                 trailingIcon = {
                                     Icon(imageVector = Icons.Default.Map, contentDescription = null, tint = Color.Black)
                                 }
-                            )
-                            Spacer(modifier = Modifier.Companion.size(155.dp))
+                            )}
+                            Spacer(modifier = Modifier.Companion.size(125.dp))
                                 FloatingActionButton(onClick = {
                                     navController.navigateToSingleTop(
                                         route = Screens.Detail.name

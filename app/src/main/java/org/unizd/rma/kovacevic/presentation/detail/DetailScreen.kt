@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -89,9 +91,9 @@ private fun DetailScreenEntry(
     onBtnClick:()-> Unit,
     onNavigate:() -> Unit,
 ) {
-    val isNewEnabled by remember {
-        mutableStateOf(false)
-    }
+//    val isNewEnabled by remember {
+//        mutableStateOf(false)
+//    }
     var bitmap by remember {
         mutableStateOf<Bitmap?>(null)
     }
@@ -109,6 +111,7 @@ private fun DetailScreenEntry(
     ) {
 
         TopSection(
+            modifier= Modifier.background(color= Color(0xFF36A2EB)),
             title = state.title,
             onNavigate =onNavigate,
             onTitleChange = onTitleChange,
@@ -123,7 +126,9 @@ private fun DetailScreenEntry(
 
             ) {
                 TextField(
+                    modifier = Modifier.weight(2f),
                     value = state.category,
+                    readOnly = true,
                     onValueChange = {
                         onCategoryChange.invoke(it)
                     },
@@ -195,7 +200,10 @@ private fun DetailScreenEntry(
             }
         }
 
-        Column {
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+                ){
             if(isUpdatingLocation){
                 var prevImage = state.imagePath
                 var newBitmap = BitmapConverter.converterStringToBitmap(prevImage)
@@ -227,6 +235,7 @@ private fun DetailScreenEntry(
 
             if(!isUpdatingLocation){
             Button(
+                modifier = Modifier.padding(horizontal = 165.dp, vertical = 4.dp),
                 onClick = {
                     // Checks if the permission is granted
                     val permissionCheckResult =
@@ -251,7 +260,7 @@ private fun DetailScreenEntry(
 //        }
         Spacer(modifier = Modifier.size(12.dp))
         LocationTextField(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(2f).fillMaxWidth(),
             value = state.content,
             onValueChange = onContentChange,
             label = "Content"
@@ -273,11 +282,13 @@ fun TopSection(
     Row(
         modifier= modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+
     ){
         IconButton(onClick = onNavigate) {
             Icon(
                 imageVector = Icons.Default.ArrowBack ,
+                modifier = Modifier.background(color = Color.Transparent),
                 contentDescription = null)
 
         }
@@ -361,7 +372,10 @@ private fun LocationTextField(
         modifier=modifier,
         colors = TextFieldDefaults.textFieldColors(
             unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent
+            focusedIndicatorColor = Color.Transparent,
+            disabledPlaceholderColor = Color.Transparent,
+            placeholderColor = Color.Transparent,
+            focusedLabelColor = Color.Transparent
             ),
         placeholder = {
             Text(

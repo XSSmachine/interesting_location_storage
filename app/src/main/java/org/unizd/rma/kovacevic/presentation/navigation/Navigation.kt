@@ -49,8 +49,12 @@ fun LocationNavigation(
         composable(route = Screens.Map.name){
             val state by mapViewModel.state.collectAsState()
             MapScreen(
-                state = state
-
+                state = state,
+                        onLocationClicked = {
+                    navHostController.navigateToSingleTop(
+                        route = "${Screens.Detail.name}?id=$it"
+                    )
+                }
                 )
         }
         composable(

@@ -11,7 +11,7 @@ data class Location(
     val title:String,
     val content:String,
     val category: String,
-    val createdDate:Date,
+    val createdDate:String,
     val imagePath: String,
     val latitude:Double,
     val longitude:Double
