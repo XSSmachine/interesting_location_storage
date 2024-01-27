@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -52,11 +51,6 @@ fun DetailScreen(
         state=state,
         modifier = modifier,
         isUpdatingLocation = state.isUpdatingLocation,
-
-//        title = state.title,
-//        content = state.content,
-//        category = state.category,
-//        imagePath = state.imagePath,
         isFormNotEmpty = viewModel.isFormNotBlank,
         onTitleChange = viewModel::onTitleChange,
         onContentChange = viewModel::onContentChange,
@@ -77,10 +71,6 @@ private fun DetailScreenEntry(
     modifier: Modifier,
     state: DetailState,
     isUpdatingLocation:Boolean,
-//    title:String,
-//    content: String,
-//    category: String,
-//    imagePath:String,
     isFormNotEmpty:Boolean,
     onTitleChange:(String) -> Unit,
     onContentChange:(String) -> Unit,
@@ -91,15 +81,12 @@ private fun DetailScreenEntry(
     onBtnClick:()-> Unit,
     onNavigate:() -> Unit,
 ) {
-//    val isNewEnabled by remember {
-//        mutableStateOf(false)
-//    }
     var bitmap by remember {
         mutableStateOf<Bitmap?>(null)
     }
 
     var convertedImage by remember{
-        mutableStateOf<String>("")
+        mutableStateOf("")
     }
     val items = listOf(
                         "PRIRODNE LJEPOTE",
@@ -227,8 +214,7 @@ private fun DetailScreenEntry(
                     modifier = Modifier
                         .fillMaxWidth()
                         .size(360.dp)
-                )
-            }
+                ) }
             }
 
             val context = LocalContext.current
@@ -253,11 +239,6 @@ private fun DetailScreenEntry(
                 Icon(imageVector = Icons.Default.Camera,contentDescription = null)
             }}
         }
-//        FloatingActionButton(onClick = {
-//
-//        }) {
-//            Icon(imageVector = Icons.Default.Camera,contentDescription = null)
-//        }
         Spacer(modifier = Modifier.size(12.dp))
         LocationTextField(
             modifier = Modifier.weight(2f).fillMaxWidth(),
@@ -265,9 +246,6 @@ private fun DetailScreenEntry(
             onValueChange = onContentChange,
             label = "Content"
         )
-
-
-
     }
 }
 
@@ -305,60 +283,6 @@ fun TopSection(
 }
 
 @Composable
-fun DropdownMenu(
-    stateHolder: DropdownMenuStateHolder,
-    category: String,
-    onCategoryChange: (String) ->Unit,
-) {
-    Column {
-        Box {
-            OutlinedTextField(
-                value = stateHolder.value,
-                onValueChange = {onCategoryChange(it)},
-                label = { Text(text = "Category") },
-                readOnly = true,
-                trailingIcon = {
-                    Icon(
-                        imageVector = stateHolder.icon,
-                        contentDescription = null,
-                        Modifier.clickable {
-                            stateHolder.onEnabled(!(stateHolder.enabled))
-                        })
-                },
-                modifier = Modifier.onGloballyPositioned {
-                    stateHolder.onSize(it.size.toSize())
-                }
-            )
-            androidx.compose.material.DropdownMenu(
-                expanded = stateHolder.enabled,
-                onDismissRequest = {
-                    stateHolder.onEnabled(false)
-
-                },
-                modifier = Modifier
-                    .width(with(LocalDensity.current)
-                    {stateHolder.size.width.toDp()})
-            ) {
-                    stateHolder.items.forEachIndexed { index, s ->
-                        DropdownMenuItem(onClick = {
-                            stateHolder.onSelectedIndex(index)
-                            stateHolder.onEnabled(false)
-                        }) {
-
-                            Text(text = s)
-
-                        }
-                        
-                    }
-            }
-        }
-    }
-}
-
-
-
-
-@Composable
 private fun LocationTextField(
     modifier: Modifier,
     value:String,
@@ -386,66 +310,6 @@ private fun LocationTextField(
             )
         }
         )
-}
-
-
-@Composable
-fun ImageTaker(
-    onImageTaken: (String) -> Unit,
-               ) {
-    var bitmap by remember {
-        mutableStateOf<Bitmap?>(null)
-    }
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview(),
-        onResult = { newImage ->
-            bitmap = newImage
-        }
-    )
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            cameraLauncher.launch()
-        }
-    }
-
-    Column {
-        bitmap?.let {
-            val imagePath = BitmapConverter.converterBitmapToString(it)
-            onImageTaken.invoke(imagePath)
-            Image(
-                bitmap = it.asImageBitmap(),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .size(360.dp)
-            )
-        }
-
-        val context = LocalContext.current
-
-        TextButton(
-            onClick = {
-                // Checks if the permission is granted
-                val permissionCheckResult =
-                    ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA)
-
-                if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                    // The permission is already granted
-                    cameraLauncher.launch()
-                } else {
-                    // Launches the permission request
-                    permissionLauncher.launch(android.Manifest.permission.CAMERA)
-                }
-            }
-        ) {
-            Text(
-                text = "Use camera"
-            )
-        }
-    }
 }
 
 

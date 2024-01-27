@@ -1,38 +1,23 @@
 package org.unizd.rma.kovacevic.presentation.detail
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.icu.text.DateIntervalFormat.FormattedDateInterval
 import android.util.Log
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import dagger.Component.Factory
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.unizd.rma.kovacevic.BitmapConverter
-import org.unizd.rma.kovacevic.MainActivity
 import org.unizd.rma.kovacevic.MainActivity.Companion.lastKnownLocation
 import org.unizd.rma.kovacevic.data.local.model.Location
 import org.unizd.rma.kovacevic.domain.use_cases.AddUseCase
 import org.unizd.rma.kovacevic.domain.use_cases.GetLocationByIdUseCase
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -112,7 +97,6 @@ class DetailViewModel @AssistedInject constructor(
 
     fun onLocationFetch() {
         if (lastKnownLocation != null) {
-
             state = state.copy(
                 latitude = lastKnownLocation!!.latitude,
                 longitude = lastKnownLocation!!.longitude
@@ -127,14 +111,9 @@ class DetailViewModel @AssistedInject constructor(
 
     fun addOrUpdateLocation() = viewModelScope.launch {
         addusecase(location = location)
-        counter++
     }
 
-
-
-
     companion object {
-        var counter by mutableStateOf(0)
         fun provideMainViewModelFactory(
             factory: Factory,
             locationID: Long
@@ -174,15 +153,6 @@ data class DetailState(
         }
     }
 }
-
-//class DetailedViewModelFactory(
-//    private val locationId: Long,
-//    private val assistedFactory: DetailViewModel.Factory
-//):ViewModelProvider.Factory{
-//    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-//        return assistedFactory.create(locationId) as T
-//    }
-//}
 
 
 

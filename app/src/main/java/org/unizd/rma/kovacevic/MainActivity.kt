@@ -8,13 +8,10 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,7 +20,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -32,11 +28,9 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.AndroidEntryPoint
-import org.unizd.rma.kovacevic.MainActivity.Companion.lastKnownLocation
 import org.unizd.rma.kovacevic.presentation.detail.DetailViewModel
 import org.unizd.rma.kovacevic.presentation.home.HomeViewModel
 import org.unizd.rma.kovacevic.presentation.map.MapViewModel
-import org.unizd.rma.kovacevic.presentation.map.state.LocationState
 import org.unizd.rma.kovacevic.presentation.navigation.LocationNavigation
 import org.unizd.rma.kovacevic.presentation.navigation.Screens
 import org.unizd.rma.kovacevic.presentation.navigation.navigateToSingleTop
@@ -76,7 +70,7 @@ companion object{
                 }
             }
         } catch (e: SecurityException) {
-            // Show error or something
+            // Show error
         }
     }
 
@@ -101,10 +95,6 @@ companion object{
             requestPermissionLauncher.launch(ACCESS_FINE_LOCATION)
         }
     }
-
-
-
-
 
     @Inject lateinit var assistedFactory: DetailViewModel.Factory
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -159,7 +149,6 @@ companion object{
                                 }
                             )
                             Spacer(modifier = Modifier.Companion.size(12.dp))
-                            AnimatedVisibility(DetailViewModel.counter!=0) {
                             InputChip(
                                 selected = currentTab == TabScreen.Home,
                                 onClick = {
@@ -176,7 +165,7 @@ companion object{
                                 trailingIcon = {
                                     Icon(imageVector = Icons.Default.Map, contentDescription = null, tint = Color.Black)
                                 }
-                            )}
+                            )
                             Spacer(modifier = Modifier.Companion.size(125.dp))
                                 FloatingActionButton(onClick = {
                                     navController.navigateToSingleTop(
@@ -191,8 +180,6 @@ companion object{
                     }
                 )
             },
-
-
 
         ) {
             LocationNavigation(
@@ -209,17 +196,4 @@ companion object{
 
 enum class TabScreen{
     Home,Map
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    InterestingLocationsStorageTheme {
-        Greeting("Android")
-    }
 }

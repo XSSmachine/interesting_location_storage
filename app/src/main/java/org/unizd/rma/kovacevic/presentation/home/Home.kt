@@ -181,50 +181,50 @@ fun LocationCard(
     }
 }
 
-//@Preview(showSystemUi = true)
-//@Composable
-//fun prevHome(){
-//    HomeScreen(
-//        state = HomeState(
-//            locations = ScreenViewState.Success(locations)
-//        ),
-//        onDeleteLocation = {},
-//        onLocationClicked = {})
-//}
-//
-//val placeHolderText =
-//    "Ovdje je neki random tekst koji sam napisao da se ispiše u prikazu"
-//
-//val locations = listOf(
-//    Location(
-//        title ="Room Database",
-//        content = placeHolderText + placeHolderText,
-//        createdDate = Date(),
-//        category = "GRADSKI PROSTORI",
-//        imagePath = "res/drawable/example_pic.jpg",
-//        latitude = 0.0,
-//        longitude = 0.0
-//
-//    ),
-//    Location(
-//        title ="Jetpack Compose",
-//        content = "Test example",
-//        createdDate = Date(),
-//        category = "POVIJESNA_MJESTA",
-//        imagePath = "res/drawable/example_pic.jpg",
-//        latitude = 0.0,
-//        longitude = 0.0
-//
-//    ),
-//    Location(
-//        title ="Room Database",
-//        content = placeHolderText + placeHolderText,
-//        createdDate = Date(),
-//        category = "GRADSKI PROSTORI",
-//        imagePath = "res/drawable/example_pic.jpg",
-//        latitude = 0.0,
-//        longitude = 0.0
-//
-//    )
+@Preview(showSystemUi = true)
+@Composable
+fun prevHome(){
+    HomeScreen(
+        state = HomeState(
+            locations = ScreenViewState.Success(locations)
+        ),
+        onDeleteLocation = {},
+        onLocationClicked = {})
+}
 
-//)
+val placeHolderText =
+    "Ovdje je neki random tekst koji sam napisao da se ispiše u prikazu"
+
+val locations = listOf(
+    Location(
+        title ="Room Database",
+        content = placeHolderText + placeHolderText,
+        createdDate = "23-11-2025",
+        category = "GRADSKI PROSTORI",
+        imagePath = "res/drawable/example_pic.jpg",
+        latitude = 0.0,
+        longitude = 0.0
+
+    ),
+    Location(
+        title ="Jetpack Compose",
+        content = "Test example",
+        createdDate = "23-11-2025",
+        category = "POVIJESNA_MJESTA",
+        imagePath = "res/drawable/example_pic.jpg",
+        latitude = 0.0,
+        longitude = 0.0
+
+    ),
+    Location(
+        title ="Room Database",
+        content = placeHolderText + placeHolderText,
+        createdDate = "23-11-2025",
+        category = "GRADSKI PROSTORI",
+        imagePath = "res/drawable/example_pic.jpg",
+        latitude = 0.0,
+        longitude = 0.0
+
+    )
+
+)

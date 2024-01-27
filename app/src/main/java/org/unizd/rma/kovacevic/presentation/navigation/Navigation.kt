@@ -17,8 +17,6 @@ import org.unizd.rma.kovacevic.presentation.home.HomeScreen
 import org.unizd.rma.kovacevic.presentation.home.HomeViewModel
 import org.unizd.rma.kovacevic.presentation.map.MapScreen
 import org.unizd.rma.kovacevic.presentation.map.MapViewModel
-import org.unizd.rma.kovacevic.presentation.map.state.LocationState
-
 enum class Screens{
     Home,Detail,Map
 }

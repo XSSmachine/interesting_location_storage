@@ -25,7 +25,6 @@ class HomeViewModel @Inject constructor(
         getAllLocations()
     }
 
-
     private fun getAllLocations(){
         getAllLocationsUseCase()
             .onEach {
@@ -41,7 +40,6 @@ class HomeViewModel @Inject constructor(
         deleteLocationUseCase(locationId)
     }
 }
-
 
 data class HomeState(
     val locations:ScreenViewState<List<Location>> = ScreenViewState.Loading,

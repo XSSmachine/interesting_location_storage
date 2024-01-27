@@ -1,29 +1,16 @@
 package org.unizd.rma.kovacevic.presentation.map
 
-import android.content.Context
-import android.graphics.drawable.Icon
-import android.location.Location
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.*
-import kotlinx.coroutines.launch
-import org.unizd.rma.kovacevic.MainActivity
 import org.unizd.rma.kovacevic.common.ScreenViewState
 
 @Composable
@@ -32,8 +19,6 @@ fun MapScreen(
     onLocationClicked: (Long) -> Unit
 
 ) {
-
-    // Set properties using MapProperties which you can use to recompose the map
     val cameraPositionState = rememberCameraPositionState()
 
     when(state.clusterItems){
@@ -48,9 +33,6 @@ fun MapScreen(
                     modifier = Modifier.fillMaxSize(),
                     cameraPositionState = cameraPositionState
                 ) {
-                    val navController = rememberNavController()
-                    val context = LocalContext.current
-                    val scope = rememberCoroutineScope()
                     state.clusterItems.data.forEach { position ->
                         Marker(
 
@@ -66,16 +48,12 @@ fun MapScreen(
                             onInfoWindowLongClick ={ onLocationClicked(position.id) }
                         )
                     }
-//                    MarkerInfoWindow(
-//                        state = rememberMarkerState(position = LatLng(49.1, -122.5)),
-//                        snippet = "Some stuff",
-//                        onClick = {
-//                            // This won't work :(
-//                            System.out.println("Mitchs_: Cannot be clicked")
-//                            true
-//                        },
-//                        draggable = true
-//                    )
+                    Marker(
+                        state = rememberMarkerState(position = LatLng(44.119371, 15.231365)),
+                        title = "Author: Karlo Kovačević",
+                        tag = "Default value",
+                        draggable = false
+                    )
                 }
             }
         }
@@ -88,15 +66,17 @@ fun MapScreen(
         }
     }
 
-
-
-
     fun calculateZoneLatLng(state: MapViewModel.MapState): LatLng {
         return when (val clusterItems = state.clusterItems) {
             is ScreenViewState.Success -> {
                 val latLngs = clusterItems.data
                     .map { LatLng(it.latitude, it.longitude) }
-                LatLng(latLngs[latLngs.size-1].latitude, latLngs[latLngs.size-1].longitude)
+                if (latLngs.isNotEmpty()) {
+                    LatLng(latLngs.last().latitude, latLngs.last().longitude)
+                } else {
+                    // Handle the case when there are no cluster items
+                    LatLng(44.119371, 15.231365) // Default coordinates
+                }
             }
             else -> {
                 // Handle other states like Loading or Error
@@ -106,7 +86,7 @@ fun MapScreen(
         }
     }
 
-    // Center camera to include all the Zones.
+    // Center camera to last added location.
     LaunchedEffect(state.clusterItems) {
         if (state.clusterItems!=null) {
             cameraPositionState.animate(
@@ -117,14 +97,6 @@ fun MapScreen(
             )
         }
     }
-
-    // Center camera to include all the Zones.
-//    LaunchedEffect(true) {
-//
-//            cameraPositionState.centerOnLocation(lat = locations.get(si),lng= locations[locations.size-1].longitude)
-//
-//
-//    }
 }
 
 /**
